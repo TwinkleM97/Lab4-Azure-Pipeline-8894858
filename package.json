@@ -1,0 +1,22 @@
+{
+  "name": "azure-function-cicd-nodejs",
+  "version": "1.0.0",
+  "description": "Node.js Azure Function with CI/CD Pipeline",
+  "main": "index.js",
+  "scripts": {
+    "start": "func start",
+    "test": "mocha test/*.test.js",
+    "test:ci": "mocha test/*.test.js --reporter json > test-results.json"
+  },
+  "dependencies": {
+    "@azure/functions": "^3.0.0"
+  },
+  "devDependencies": {
+    "mocha": "^10.0.0",
+    "chai": "^4.3.6",
+    "azure-functions-core-tools": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

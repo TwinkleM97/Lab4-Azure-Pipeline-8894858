@@ -1,0 +1,18 @@
+# Azure Functions local settings
+local.settings.json
+
+# Node.js dependencies
+node_modules/
+
+# VS Code settings
+.vscode/
+
+# Logs
+*.log
+
+# Test coverage
+coverage/
+
+# Environment files
+.env
+.env.*
