@@ -9,10 +9,9 @@
     "test:ci": "mocha ./test/**/*.test.js --reporter json > test-results.json"
   },
   "dependencies": {
-    "@azure/functions": "^3.0.0"
+    "@azure/functions": "^4.5.0"
   },
   "devDependencies": {
-    "azure-functions-core-tools": "^4.0.0",
     "chai": "^4.5.0",
     "mocha": "^10.8.2"
   },
