@@ -6,12 +6,13 @@ app.http('HttpTrigger1', {
     handler: async (request, context) => {
         context.log('HTTP trigger function processed a request.');
 
-        const name = request.query.get('name') || 
-                    (await request.text() && JSON.parse(await request.text()).name);
+        // Safely get name from query or JSON body
+        const body = await request.text();
+        const name = request.query.name || (body && JSON.parse(body).name);
 
         const responseMessage = getGreeting(name);
 
-        return { 
+        return {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: responseMessage })
@@ -20,7 +21,7 @@ app.http('HttpTrigger1', {
 });
 
 function getGreeting(name) {
-    return name 
+    return name
         ? `Hello, ${name}! This Node.js Azure Function is working correctly.`
         : "Hello, World! This Node.js Azure Function is working correctly.";
 }
