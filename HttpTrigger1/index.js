@@ -1,37 +1,13 @@
-const { app } = require('@azure/functions');
-
-app.http('HttpTrigger1', {
-  methods: ['GET', 'POST'],
-  authLevel: 'anonymous',
-  handler: async (request, context) => {
+module.exports = async function (context, req) {
     context.log('HTTP trigger function processed a request.');
 
-    let name = request.query.get('name');
-    
-    if (!name && request.method === 'POST') {
-      try {
-        const bodyText = await request.text();
-        const body = JSON.parse(bodyText || '{}');
-        name = body.name;
-      } catch (err) {
-        context.log('Error parsing JSON body:', err.message);
-      }
-    }
+    const name = req.query.name || req.body?.name;
+    const responseMessage = name
+        ? `Hello, ${name}! This Node.js Azure Function is working correctly.`
+        : "Hello, World! This Node.js Azure Function is working correctly.";
 
-    const responseMessage = getGreeting(name);
-
-    return {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: responseMessage })
+    context.res = {
+        status: 200,
+        body: { message: responseMessage }
     };
-  }
-});
-
-function getGreeting(name) {
-  return name
-    ? `Hello, ${name}! This Node.js Azure Function is working correctly.`
-    : "Hello, World! This Node.js Azure Function is working correctly.";
-}
-
-module.exports = { getGreeting };
+};

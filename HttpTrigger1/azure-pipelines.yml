@@ -1,0 +1,100 @@
+trigger:
+- main
+
+variables:
+  azureSubscription: 'AzureServiceConnection'  # Replace with your actual Azure DevOps service connection name
+  functionAppName: 'lab4-func-8894858'         # Your Azure Function App name
+  nodeVersion: '18.x'
+
+stages:
+# -------------------------------
+# Stage 1: Build
+# -------------------------------
+- stage: Build
+  jobs:
+  - job: Build
+    pool:
+      name: LocalAgentPool
+      demands: Agent.Name -equals TWINKLE
+
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '$(nodeVersion)'
+      displayName: 'Install Node.js'
+
+    - script: npm install
+      displayName: 'Install dependencies'
+
+    - task: DeleteFiles@1
+      displayName: 'Remove node_modules before archive'
+      inputs:
+        SourceFolder: '$(System.DefaultWorkingDirectory)'
+        Contents: '**/node_modules'
+
+    - task: ArchiveFiles@2
+      displayName: 'Archive Function App'
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
+        replaceExistingArchive: true
+        archiveFilePatterns: |
+          **/*
+          !**/node_modules/**
+
+    - publish: '$(Build.ArtifactStagingDirectory)/app.zip'
+      artifact: drop
+      displayName: 'Publish Artifact'
+
+# -------------------------------
+# Stage 2: Test
+# -------------------------------
+- stage: Test
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - job: Test
+    pool:
+      name: LocalAgentPool
+      demands: Agent.Name -equals TWINKLE
+
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '$(nodeVersion)'
+      displayName: 'Install Node.js'
+
+    - script: |
+        npm install
+        npm test
+      displayName: 'Run unit tests'
+
+# -------------------------------
+# Stage 3: Deploy
+# -------------------------------
+- stage: Deploy
+  dependsOn: Test
+  condition: succeeded()
+  jobs:
+  - deployment: Deploy
+    environment: 'production'
+    pool:
+      name: LocalAgentPool
+      demands: Agent.Name -equals TWINKLE
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureFunctionApp@1
+            displayName: 'Deploy to Azure Function'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              appType: 'functionApp'
+              appName: '$(functionAppName)'
+              package: '$(Pipeline.Workspace)/drop/app.zip'
+              deploymentMethod: 'auto'
+              runtimeStack: 'NODE|18'
+              enableCustomDeployment: true
+              removeAdditionalFilesFlag: true
