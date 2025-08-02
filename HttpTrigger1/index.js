@@ -1,17 +1,11 @@
-const { app } = require('@azure/functions');
-
-app.http('HttpTrigger1', {
-  methods: ['GET', 'POST'],
-  authLevel: 'anonymous',
-  handler: async (request, context) => {
+module.exports = async function (context, req) {
     context.log('HTTP trigger function processed a request.');
 
-    const name = request.query.get('name') || (await request.json())?.name || 'World';
+    const name = req.query.name || (req.body && req.body.name) || 'World';
     const responseMessage = `Hello, ${name}! This Node.js Azure Function is working correctly.`;
 
-    return {
-      status: 200,
-      jsonBody: { message: responseMessage }
+    context.res = {
+        status: 200,
+        body: { message: responseMessage }
     };
-  }
-});
+};
