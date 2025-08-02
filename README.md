@@ -14,7 +14,7 @@ This lab demonstrates how to automate the deployment of a **Node.js Azure Functi
 
 ---
 ## File Folder
-
+```
 Lab4-Azure-Pipeline-8894858/
 ├── HttpTrigger1/
 │ ├── index.js
@@ -25,6 +25,7 @@ Lab4-Azure-Pipeline-8894858/
 ├── host.json
 ├── package.json
 ├── package-lock.json
+```
 ---
 
 ## CI/CD Pipeline Steps with Screenshots
